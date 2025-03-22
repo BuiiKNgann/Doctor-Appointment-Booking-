@@ -25,5 +25,3 @@ const doctorList = async (req, res) => {
 };
 
 export { changeAvailablity, doctorList };
-
-//8:24:40
