@@ -52,65 +52,146 @@ const Appointment = () => {
   //         hour: "2-digit",
   //         minute: "2-digit",
   //       });
-  //       timeSlots.push({
-  //         datetime: new Date(currentDate),
-  //         time: formattedTime,
-  //       });
+  //       let day = currentDate.getDate();
+  //       let month = currentDate.getMonth() + 1;
+  //       let year = currentDate.getFullYear();
+
+  //       const slotDate = day + "_" + month + "_" + year;
+  //       const slotTime = formattedTime;
+  //       const isSlotAvailable =
+  //         docInfo.slots_booked[slotDate] &&
+  //         docInfo.slots_booked[slotDate].includes(slotTime)
+  //           ? false
+  //           : true;
+  //       if (isSlotAvailable) {
+  //         // add slot to array
+  //         timeSlots.push({
+  //           datetime: new Date(currentDate),
+  //           time: formattedTime,
+  //         });
+  //       }
+
   //       currentDate.setMinutes(currentDate.getMinutes() + 30);
   //     }
   //     setDocSlots((prev) => [...prev, timeSlots]);
   //   }
   // };
-  const getAvailableSlots = async () => {
-    let today = new Date();
-    let newDocSlots = [];
 
+  // const getAvailableSlots = async () => {
+  //   let today = new Date();
+  //   let newDocSlots = [];
+
+  //   for (let i = 0; i < 7; i++) {
+  //     let currentDate = new Date(today);
+  //     currentDate.setDate(today.getDate() + i);
+
+  //     let endTime = new Date(currentDate);
+  //     endTime.setHours(21, 0, 0, 0);
+
+  //     // Đặt giờ bắt đầu cho từng ngày
+  //     if (i === 0) {
+  //       // Ngày hiện tại: bắt đầu từ giờ hiện tại nếu >= 10, nếu < 10 thì đặt về 10:00
+  //       currentDate.setHours(Math.max(currentDate.getHours() + 1, 10));
+  //       currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0);
+  //     } else {
+  //       // Các ngày khác bắt đầu từ 10:00 sáng
+  //       currentDate.setHours(10, 0, 0, 0);
+  //     }
+
+  //     let timeSlots = [];
+
+  //     while (currentDate < endTime) {
+  //       let day = currentDate.getDate()
+  //             let month = currentDate.getMonth()+1
+  //              let year = currentDate.getFullYear()
+  //              const slotDate = day + "_" + month + "_" + year;
+  //              const slotTime = formattedTime
+  //       timeSlots.push({
+  //         datetime: new Date(currentDate),
+  //         time: currentDate.toLocaleTimeString([], {
+  //           hour: "2-digit",
+  //           minute: "2-digit",
+  //         }),
+  //       });
+
+  //       currentDate.setMinutes(currentDate.getMinutes() + 30);
+  //     }
+
+  //     // Đảm bảo mảng ngày đầu tiên không rỗng
+  //     if (timeSlots.length === 0 && i === 0) {
+  //       timeSlots.push({
+  //         datetime: new Date(today),
+  //         time: today.toLocaleTimeString([], {
+  //           hour: "2-digit",
+  //           minute: "2-digit",
+  //         }),
+  //       });
+  //     }
+
+  //     newDocSlots.push(timeSlots);
+  //   }
+
+  //   setDocSlots(newDocSlots);
+  // };
+  const getAvailableSlots = async () => {
+    setDocSlots([]);
+
+    // getting current date
+    let today = new Date();
     for (let i = 0; i < 7; i++) {
       let currentDate = new Date(today);
       currentDate.setDate(today.getDate() + i);
 
-      let endTime = new Date(currentDate);
+      // setting end time of the date with index
+      let endTime = new Date();
+      endTime.setDate(today.getDate() + i);
       endTime.setHours(21, 0, 0, 0);
 
-      // Đặt giờ bắt đầu cho từng ngày
-      if (i === 0) {
-        // Ngày hiện tại: bắt đầu từ giờ hiện tại nếu >= 10, nếu < 10 thì đặt về 10:00
-        currentDate.setHours(Math.max(currentDate.getHours() + 1, 10));
+      // setting hours
+      if (today.getDate() === currentDate.getDate()) {
+        currentDate.setHours(
+          currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10
+        );
         currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0);
       } else {
-        // Các ngày khác bắt đầu từ 10:00 sáng
-        currentDate.setHours(10, 0, 0, 0);
+        currentDate.setHours(10);
+        currentDate.setMinutes(0);
       }
-
       let timeSlots = [];
 
       while (currentDate < endTime) {
-        timeSlots.push({
-          datetime: new Date(currentDate),
-          time: currentDate.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+        let formattedTime = currentDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
         });
+        let day = currentDate.getDate();
+        let month = currentDate.getMonth() + 1;
+        let year = currentDate.getFullYear();
+
+        const slotDate = day + "_" + month + "_" + year;
+        const slotTime = formattedTime;
+
+        // Check if docInfo and docInfo.slots_booked are available
+        const isSlotAvailable =
+          docInfo &&
+          docInfo.slots_booked &&
+          docInfo.slots_booked[slotDate] &&
+          docInfo.slots_booked[slotDate].includes(slotTime)
+            ? false
+            : true;
+
+        if (isSlotAvailable) {
+          // add slot to array
+          timeSlots.push({
+            datetime: new Date(currentDate),
+            time: formattedTime,
+          });
+        }
 
         currentDate.setMinutes(currentDate.getMinutes() + 30);
       }
-
-      // Đảm bảo mảng ngày đầu tiên không rỗng
-      if (timeSlots.length === 0 && i === 0) {
-        timeSlots.push({
-          datetime: new Date(today),
-          time: today.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        });
-      }
-
-      newDocSlots.push(timeSlots);
+      setDocSlots((prev) => [...prev, timeSlots]);
     }
-
-    setDocSlots(newDocSlots);
   };
 
   const bookAppointment = async () => {
@@ -132,7 +213,7 @@ const Appointment = () => {
       if (data.success) {
         toast.success(data.message);
         getDoctorsData();
-        navigate("/my-appointments");
+        navigate("/my-appontments");
       } else {
         toast.error(data.message);
       }
